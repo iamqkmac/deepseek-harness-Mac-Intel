@@ -180,7 +180,18 @@ export function apply(ctx) {
     manifest.dependencies = { ...manifest.dependencies, [pluginName]: `file:${plugin}` }
     manifest.dsh.profile.bundles.push(pluginName)
     writeFileSync(join(profile, 'package.json'), JSON.stringify(manifest))
-    writeFileSync(join(profile, 'cordis.patch.yml'), '- id: webserver\n  config:\n    host: 127.0.0.1\n    port: 0\n')
+    // A row patch replaces the row's whole config; the bundle sets none for
+    // office-to-pdf, so the remaining fields keep their schema defaults.
+    writeFileSync(join(profile, 'cordis.patch.yml'), [
+      '- id: webserver',
+      '  config:',
+      '    host: 127.0.0.1',
+      '    port: 0',
+      '- id: office-to-pdf',
+      '  config:',
+      `    timeoutMs: ${OFFICE_SMOKE_TIMEOUT_MS}`,
+      '',
+    ].join('\n'))
     const ready = await Promise.race([host.start(), new Promise<never>((_, reject) => {
       timer = setTimeout(() => { reject(new Error('desktop runtime: Host readiness exceeded 120 seconds')) }, 120_000)
     })])
