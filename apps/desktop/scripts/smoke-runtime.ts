@@ -15,6 +15,13 @@ import type { DesktopRuntimeDescriptor } from '../src/runtime-tree.ts'
 const OFFICE_SKILLS = ['office', 'office-docx', 'office-pptx', 'office-xlsx']
 
 /**
+ * The first LibreOffice conversion in a cold smoke home builds a font cache.
+ * Hosted Intel runners can exceed the provider's 60-second production default,
+ * so the correctness smoke gets a wider budget rather than reporting a timeout.
+ */
+const OFFICE_SMOKE_TIMEOUT_MS = 300_000
+
+/**
  * Require each bundled Office skill to be listed and loaded with a nonempty body.
  * @param results - Host probe results; `bytes` is the loaded body length, 0 when unlisted or not loaded.
  * @throws Error listing every result when a bundled Office skill is missing or empty.
